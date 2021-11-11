@@ -324,14 +324,14 @@ def push_card_from_arr(point, card):
 
     # --- 列出有武器的所有人 ---
     target_arms_card_not_null = []
-    for target_player in target_players_all_and_me:
+    for target_player in target_players_all:
         if target_player.equipment["arms"] != "":
             target_arms_card_not_null.append(target_player)
     # 展示有武器的全部玩家和其座位号
     def show_target_arms_card_not_null():
         print("----- 可选择目标列表 -----")
         for target_player in target_arms_card_not_null:
-            print(f"{target_player.location} - {target_player.user.nickname}")
+            print(f"{target_player.location} - {target_player.user.nickname} - {target_player.equipment['arms']}")
         print("----------")
     # ------------------------------
 
@@ -783,11 +783,15 @@ def push_card_from_arr(point, card):
                 and target_player.mark_skil_bag["bingliangcunduan"]=="":
             return False
 
+        # 将这张过河拆桥放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
+
         # 临时存储所有可选择的牌
         target_card_arr_all = []
 
         # 把手牌存入可选牌
-        for target_card in target_player.listCardForArray:
+        for target_card in target_player.listCardForArray():
             target_card_arr_all.append(target_card)
 
         # 把装备牌存入可选牌
@@ -808,13 +812,15 @@ def push_card_from_arr(point, card):
         if target_player.mark_skil_bag["bingliangcunduan"] != "":
             target_card_arr_all.append(target_player.mark_skil_bag["bingliangcunduan"])
 
+        print("可选择 过河拆桥 的牌")
+        for index in range(len(target_card_arr_all)):
+            print(f"{index} - {target_card_arr_all[index].color}{target_card_arr_all[index].points} - {target_card_arr_all[index].name}")
+
         index_for_chaiqiao = int(input("请选择 过河拆桥 的牌:\n"))
         result = target_player.popCardForAll(target_card_arr_all[index_for_chaiqiao])
 
         # 选中的牌放入弃牌堆
         discardStack.addCardForArray(result)
-
-        return True
 
     # -- 顺手牵羊 --
     if card.category == 203:
@@ -839,11 +845,15 @@ def push_card_from_arr(point, card):
                 and target_player.mark_skil_bag["bingliangcunduan"] == "":
             return False
 
+        # 将这张顺手牵羊放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
+
         # 临时存储所有可选择的牌
         target_card_arr_all = []
 
         # 把手牌存入可选牌
-        for target_card in target_player.listCardForArray:
+        for target_card in target_player.listCardForArray():
             target_card_arr_all.append(target_card)
 
         # 把装备牌存入可选牌
@@ -864,13 +874,15 @@ def push_card_from_arr(point, card):
         if target_player.mark_skil_bag["bingliangcunduan"] != "":
             target_card_arr_all.append(target_player.mark_skil_bag["bingliangcunduan"])
 
+        print("可选择 顺手牵羊 的牌")
+        for index in range(len(target_card_arr_all)):
+            print(f"{index} - {target_card_arr_all[index].color}{target_card_arr_all[index].points} - {target_card_arr_all[index].name}")
+
         index_for_chaiqiao = int(input("请选择 顺手牵羊 的牌:\n"))
         result = target_player.popCardForAll(target_card_arr_all[index_for_chaiqiao])
 
         # 选中的牌放到当前玩家手牌
         point.addCardForArray(result)
-
-        return True
 
     # -- 无中生有 --
     if card.category == 204:
@@ -879,8 +891,17 @@ def push_card_from_arr(point, card):
         for i in range(2):
             point.addCardForArray(cardStack.popCardFromTop())
 
+        # 将这张无中生有放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
+
     # -- 借刀杀人 --
     if card.category == 205:
+
+        # 当没有有武器的目标时
+        if len(target_arms_card_not_null)==0:
+            print("没有有武器的玩家")
+            return False
 
         # 展示所有有武器的玩家
         show_target_arms_card_not_null()
@@ -1375,47 +1396,69 @@ def push_card_from_arr(point, card):
     # -- 诸葛连弩 --
     if card.category==401:
         point.equipment["arms"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 青釭剑 --
     if card.category==402:
         point.equipment["arms"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 雌雄双股剑 --
     if card.category==403:
         point.equipment["arms"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 贯石斧 --
     if card.category==404:
         point.equipment["arms"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 青龙偃月刀 --
     if card.category==405:
         point.equipment["arms"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 丈八蛇矛 --
     if card.category==406:
         point.equipment["arms"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 方天画戟 --
     if card.category==407:
         point.equipment["arms"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 麒麟弓 --
     if card.category==408:
         point.equipment["arms"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 古锭刀 --
     if card.category==409:
         point.equipment["arms"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 朱雀羽扇 --
     if card.category==410:
         point.equipment["arms"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 寒冰剑 --
     if card.category==411:
         point.equipment["arms"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
 
     # ------------------------------
     #   防具牌出牌逻辑
@@ -1424,19 +1467,27 @@ def push_card_from_arr(point, card):
     # -- 八卦阵 --
     if card.category==501:
         point.equipment["armor"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 白银狮子 --
     if card.category==502:
         point.equipment["armor"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 藤甲 --
     if card.category==503:
         point.equipment["armor"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 仁王盾 --
     if card.category==504:
         point.equipment["armor"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
 
     # ------------------------------
     #   +马牌出牌逻辑
@@ -1445,19 +1496,27 @@ def push_card_from_arr(point, card):
     # -- 爪黄飞电 --
     if card.category==601:
         point.equipment["horse+"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 的卢 --
     if card.category==602:
         point.equipment["horse+"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 绝影 --
     if card.category==603:
         point.equipment["horse+"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 骅骝 --
     if card.category==604:
         point.equipment["horse+"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
 
     # ------------------------------
     #   -马牌出牌逻辑
@@ -1466,15 +1525,21 @@ def push_card_from_arr(point, card):
     # -- 赤兔 --
     if card.category==701:
         point.equipment["horse-"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 紫骍 --
     if card.category==702:
         point.equipment["horse-"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
     # -- 大宛 --
     if card.category==703:
         point.equipment["horse-"] = card
-        return True
+        # 将这张牌放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
 
 
 
@@ -1589,6 +1654,8 @@ while True:
     # 游戏结束判断
     if the_end:
         break
+
+    point = point.right_player;
 
 
 ########## 游戏结算

@@ -608,7 +608,11 @@ class CardStack():
     def __init__(self):
 
         for i in range(80):
-            self.__card_array.append(GuoHeChaiQiao())
+            self.__card_array.append(JieDaoShaRen())
+            self.__card_array.append(Sha())
+            self.__card_array.append(HuoSha())
+            self.__card_array.append(LeiSha())
+            self.__card_array.append(ZhuGeLianNu())
 
 
         # 基本牌100
@@ -623,10 +627,10 @@ class CardStack():
 
         # 非延时锦囊200
         for i in range(10):
-            # self.__card_array.append(JueDou())
-            # self.__card_array.append(GuoHeChaiQiao())
-            # self.__card_array.append(ShunShouQianYang())
-            # self.__card_array.append(WuZhongShengYou())
+            # self.__card_array.append(JueDou()) # 已自测
+            # self.__card_array.append(GuoHeChaiQiao()) # 已自测
+            # self.__card_array.append(ShunShouQianYang()) # 已自测
+            # self.__card_array.append(WuZhongShengYou()) # 已自测
             # self.__card_array.append(JieDaoShaRen())
             # self.__card_array.append(WuXieKeJi())
             # self.__card_array.append(NanManRuQin())
