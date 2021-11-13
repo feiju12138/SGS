@@ -225,7 +225,7 @@ def push_card_from_arr(point, card):
     target_players_for_sha = []
     target_player = point.right_player
     while target_player != point:
-        if GoJiJuLi(point, target_player) <= 1:
+        if GongJiJuLi(point, target_player) <= 1:
             target_players_for_sha.append(target_player)
         target_player = target_player.right_player
     # 展示可攻击目标的玩家和其座位号
@@ -324,14 +324,16 @@ def push_card_from_arr(point, card):
 
     # --- 列出有武器的所有人 ---
     target_arms_card_not_null = []
-    for target_player in target_players_all:
+    target_player = point.right_player
+    while target_player != point:
         if target_player.equipment["arms"] != "":
             target_arms_card_not_null.append(target_player)
+        target_player = target_player.right_player
     # 展示有武器的全部玩家和其座位号
     def show_target_arms_card_not_null():
         print("----- 可选择目标列表 -----")
         for target_player in target_arms_card_not_null:
-            print(f"{target_player.location} - {target_player.user.nickname} - {target_player.equipment['arms']}")
+            print(f"{target_player.location} - {target_player.user.nickname} - {target_player.equipment['arms'].name}")
         print("----------")
     # ------------------------------
 
@@ -623,8 +625,9 @@ def push_card_from_arr(point, card):
             if target_players_all[i].location == target_location:
                 target_player = target_players_all[i]
 
-        # 选择目标后，决斗出牌成功
-        point.popCard(card)
+        # 将这张过河拆桥放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
 
         # 决斗开关
         flag = True
@@ -898,6 +901,11 @@ def push_card_from_arr(point, card):
     # -- 借刀杀人 --
     if card.category == 205:
 
+        #DEBUG
+        # 打印所有玩家及其武器
+        for target_player in target_players_all_and_me:
+            print(f"{target_player.location}{target_player.user.nickname} - {target_player.equipment['arms']}")
+
         # 当没有有武器的目标时
         if len(target_arms_card_not_null)==0:
             print("没有有武器的玩家")
@@ -917,7 +925,7 @@ def push_card_from_arr(point, card):
         target_players_to_list = []
         target_player = target_player_from.right_player
         while target_player != target_player_from:
-            if GoJiJuLi(point, target_player) <= 1:
+            if GongJiJuLi(point, target_player) <= 1:
                 target_players_to_list.append(target_player)
             target_player = target_player.right_player
         # 展示杀的承受者的玩家和其座位号
@@ -1565,6 +1573,7 @@ while True:
         # 从牌堆顶拿一张牌
         card_for_panding = cardStack.popCardFromTop()
         if card_for_panding.color!="红桃♥":
+            is_lebusishu = True;
             print("乐不思蜀判定成功")
         else:
             print("乐不思蜀判定失败")
@@ -1591,6 +1600,7 @@ while True:
         # 从牌堆顶拿一张牌
         card_for_panding = cardStack.popCardFromTop()
         if card_for_panding.color!="梅花♣":
+            is_bingliangcunduan = True
             print("兵粮寸断判定成功")
         else:
             print("兵粮寸断判定失败")
@@ -1621,7 +1631,9 @@ while True:
             if card_index == -1:
                 break
 
-            print(f"这张手牌为 - {point.showCardForArray(card_index)}")
+            # 打印测试
+            # print(f"这张手牌为 - {point.showCardForArray(card_index)}")
+
             # 把要出的牌的对象传递给出牌逻辑函数
             result = push_card_from_arr(point, point.showCardForArray(card_index))
             if result==True:

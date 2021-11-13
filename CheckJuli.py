@@ -30,12 +30,12 @@ def ShijiJuli(player_from, player_to):
     return sum
 
 # 攻击距离
-def GoJiJuLi(player_from, player_to):
+def GongJiJuLi(player_from, player_to):
 
     sum = ShijiJuli(player_from, player_to)
 
     # 武器修正距离
     if player_from.equipment["arms"]!="":
-        sum -= player_from.equipment["arms"].scope
+        sum -= (player_from.equipment["arms"].scope-1)
 
     return sum
