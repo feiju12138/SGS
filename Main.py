@@ -616,6 +616,10 @@ def push_card_from_arr(point, card):
     # -- 决斗 --
     if card.category==201:
 
+        # 将这张过河拆桥放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
+
         show_target_players_all()
         target_location = int(input("请选择一个目标\n"))
 
@@ -624,10 +628,6 @@ def push_card_from_arr(point, card):
         for i in range(len(target_players_all)):
             if target_players_all[i].location == target_location:
                 target_player = target_players_all[i]
-
-        # 将这张过河拆桥放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
 
         # 决斗开关
         flag = True
@@ -890,13 +890,13 @@ def push_card_from_arr(point, card):
     # -- 无中生有 --
     if card.category == 204:
 
-        # 当前玩家摸两张牌
-        for i in range(2):
-            point.addCardForArray(cardStack.popCardFromTop())
-
         # 将这张无中生有放入弃牌堆
         point.popCardForAll(card)
         discardStack.addCardForArray(card)
+
+        # 当前玩家摸两张牌
+        for i in range(2):
+            point.addCardForArray(cardStack.popCardFromTop())
 
     # -- 借刀杀人 --
     if card.category == 205:
@@ -904,7 +904,7 @@ def push_card_from_arr(point, card):
         #DEBUG
         # 打印所有玩家及其武器
         for target_player in target_players_all_and_me:
-            print(f"{target_player.location}{target_player.user.nickname} - {target_player.equipment['arms']}")
+            print(f"{target_player.location} - {target_player.user.nickname} - {target_player.equipment['arms'].name}")
 
         # 当没有有武器的目标时
         if len(target_arms_card_not_null)==0:
@@ -1079,6 +1079,10 @@ def push_card_from_arr(point, card):
     # -- 南蛮入侵 --
     if card.category == 207:
 
+        # 将这张南蛮入侵放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
+
         for target_player in target_players_all:
 
             # 展示目标玩家的手牌，确认是否出杀
@@ -1136,10 +1140,12 @@ def push_card_from_arr(point, card):
                 if result != 0:
                     the_end = True
 
-        return True
-
     # -- 万箭齐发 --
     if card.category == 208:
+
+        # 将这张万箭齐发放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
 
         for target_player in target_players_all:
 
@@ -1194,19 +1200,24 @@ def push_card_from_arr(point, card):
                 if result != 0:
                     the_end = True
 
-        return True
-
     # -- 桃园结义 --
     if card.category == 209:
+
+        # 将这张桃园结义放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
 
         for target_player in target_players_all_and_me:
             if target_player.blood != target_player.commander.blood:
                 target_player.blood += 1
-
-        return True
+                print(f"{target_player.user.nickname} 恢复了一点体力")
 
     # -- 五谷丰登 --
     if card.category == 210:
+
+        # 将这张五谷丰登放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
 
         # 创建一个临时存放五谷丰登的牌堆
         card_arr_for_wugufengdeng = []
@@ -1220,22 +1231,38 @@ def push_card_from_arr(point, card):
         def show_card_arr_for_wugufengdeng():
             print(f"----- 当前五谷丰登剩余的牌 -----")
             for i in range(len(card_arr_for_wugufengdeng)):
-                print(f"{i} - {card_arr_for_wugufengdeng[i]}")
+                print(f"{i} - {card_arr_for_wugufengdeng[i].color}{card_arr_for_wugufengdeng[i].points} - {card_arr_for_wugufengdeng[i].name}")
             print("----------")
 
-        while point_for_wugufengdeng.right_player != point:
+
+        ## 自己选牌
+        # 展示剩余的临时牌堆
+        show_card_arr_for_wugufengdeng()
+        # 选择一张牌
+        card_for_wugufengdeng_index = int(input(f"请 {point_for_wugufengdeng.user.nickname} 选择一张牌\n"))
+        # 弹出选中的牌
+        card_for_wugufengdeng = card_arr_for_wugufengdeng.pop(card_for_wugufengdeng_index)
+        # 把得到的牌放到手牌
+        point_for_wugufengdeng.addCardForArray(card_for_wugufengdeng)
+        # 提示
+        print(f"{point_for_wugufengdeng.user.nickname} 获得了一张 {card_for_wugufengdeng.color}{card_for_wugufengdeng.points} - {card_for_wugufengdeng.name}")
+        # 指针继续指向下家
+        point_for_wugufengdeng = point_for_wugufengdeng.right_player
+
+        ## 其他人选牌
+        while point_for_wugufengdeng != point:
             # 展示剩余的临时牌堆
             show_card_arr_for_wugufengdeng()
             # 选择一张牌
-            card_for_wugufengdeng_index = int(input(f"请 {point_for_wugufengdeng.user.nickname} 选择一张牌"))
+            card_for_wugufengdeng_index = int(input(f"请 {point_for_wugufengdeng.user.nickname} 选择一张牌\n"))
             # 弹出选中的牌
             card_for_wugufengdeng = card_arr_for_wugufengdeng.pop(card_for_wugufengdeng_index)
             # 把得到的牌放到手牌
             point_for_wugufengdeng.addCardForArray(card_for_wugufengdeng)
+            # 提示
+            print(f"{point_for_wugufengdeng.user.nickname} 获得了一张 {card_for_wugufengdeng.color}{card_for_wugufengdeng.points} - {card_for_wugufengdeng.name}")
             # 指针继续指向下家
             point_for_wugufengdeng = point_for_wugufengdeng.right_player
-
-        return True
 
     # -- 火攻 --
     if card.category == 211:
@@ -1328,27 +1355,61 @@ def push_card_from_arr(point, card):
     # -- 铁索连环 --
     if card.category == 212:
 
+        # 将这张铁索连环放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
+
         # 展示所有可选择目标
         show_target_players_all_and_me()
 
         # 选择1-2个目标
-        targets_str = input("选择1-2名玩家作为铁锁连环目标(多名玩家用空格隔开)")
+        targets_str = input("选择至多 2 名玩家作为铁锁连环目标(多名玩家用空格隔开)\n")
         targets_arr = targets_str.split(" ")
-        target_1 = target_players_all_and_me[int(targets_arr[0])]
-        target_2 = target_players_all_and_me[int(targets_arr[1])]
 
-        if target_1.mark_card["tiesuolianhuan"]:
-            target_1.mark_card["tiesuolianhuan"] = False
-        else:
-            target_1.mark_card["tiesuolianhuan"] = True
+        if len(targets_arr) == 1:
 
+            # 选中的第一个玩家
+            target_player_1 = ""
+            for i in range(len(target_players_all_and_me)):
+                if target_players_all_and_me[i].location == int(targets_arr[0]):
+                    target_player_1 = target_players_all_and_me[i]
 
-        if target_2.mark_card["tiesuolianhuan"]:
-            target_2.mark_card["tiesuolianhuan"] = False
-        else:
-            target_2.mark_card["tiesuolianhuan"] = True
+            # 对 第一个玩家 操作
+            if target_player_1.mark_card["tiesuolianhuan"]:
+                target_player_1.mark_card["tiesuolianhuan"] = False
+                print(f"{target_player_1.user.nickname} 已解除铁索连环")
+            else:
+                target_player_1.mark_card["tiesuolianhuan"] = True
+                print(f"{target_player_1.user.nickname} 已被铁索连环")
 
-        return True
+        elif len(targets_arr) > 1:
+
+            # 选中的第一个玩家
+            target_player_1 = ""
+            for i in range(len(target_players_all_and_me)):
+                if target_players_all_and_me[i].location == int(targets_arr[0]):
+                    target_player_1 = target_players_all_and_me[i]
+            # 选中的第二个玩家
+            target_player_2 = ""
+            for i in range(len(target_players_all_and_me)):
+                if target_players_all_and_me[i].location == int(targets_arr[1]):
+                    target_player_2 = target_players_all_and_me[i]
+
+            # 对 第一个玩家 操作
+            if target_player_1.mark_card["tiesuolianhuan"]:
+                target_player_1.mark_card["tiesuolianhuan"] = False
+                print(f"{target_player_1.user.nickname} 已解除铁索连环")
+            else:
+                target_player_1.mark_card["tiesuolianhuan"] = True
+                print(f"{target_player_1.user.nickname} 已被铁索连环")
+
+            # 对 第二个玩家 操作
+            if target_player_2.mark_card["tiesuolianhuan"]:
+                target_player_2.mark_card["tiesuolianhuan"] = False
+                print(f"{target_player_2.user.nickname} 已解除铁索连环")
+            else:
+                target_player_2.mark_card["tiesuolianhuan"] = True
+                print(f"{target_player_2.user.nickname} 已被铁索连环")
 
     # -- 乐不思蜀 --
     if card.category == 301:

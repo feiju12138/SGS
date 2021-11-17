@@ -508,12 +508,12 @@ class RenWangDun(Card):
         super().__init__()
 
 """
-爪黄飞电
+爪黄飞电601
 """
 class ZhuaHuangFeiDian(Card):
 
     def __init__(self):
-        self.category = 501
+        self.category = 601
         self.name = "爪黄飞电"
         super().__init__()
 
@@ -538,7 +538,7 @@ class JueYing(Card):
         super().__init__()
 
 """
-骅骝
+骅骝604
 """
 class HuaLiu(Card):
 
@@ -608,11 +608,7 @@ class CardStack():
     def __init__(self):
 
         for i in range(80):
-            self.__card_array.append(JieDaoShaRen())
-            self.__card_array.append(Sha())
-            self.__card_array.append(HuoSha())
-            self.__card_array.append(LeiSha())
-            self.__card_array.append(ZhuGeLianNu())
+            self.__card_array.append(TieSuoLianHuan())
 
 
         # 基本牌100
@@ -632,13 +628,13 @@ class CardStack():
             # self.__card_array.append(ShunShouQianYang()) # 已自测
             # self.__card_array.append(WuZhongShengYou()) # 已自测
             # self.__card_array.append(JieDaoShaRen())
-            # self.__card_array.append(WuXieKeJi())
-            # self.__card_array.append(NanManRuQin())
-            # self.__card_array.append(WanJianQiFa())
-            # self.__card_array.append(TaoYuanJieYi())
-            # self.__card_array.append(WuGuFengDeng())
+            # self.__card_array.append(WuXieKeJi()) # 已自测
+            # self.__card_array.append(NanManRuQin()) # 已自测
+            # self.__card_array.append(WanJianQiFa()) # 已自测
+            # self.__card_array.append(TaoYuanJieYi()) # 已自测
+            # self.__card_array.append(WuGuFengDeng()) # 已自测
             # self.__card_array.append(HuoGong())
-            # self.__card_array.append(TieSuoLianHuan())
+            # self.__card_array.append(TieSuoLianHuan()) # 已自测
             pass
 
         # 延时锦囊300
