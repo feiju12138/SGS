@@ -52,11 +52,11 @@ commander01 = Commander("01", "0", "武将", 4, [])
 
 ########## 初始化玩家
 # 创建5个玩家
-player01 = Player(user01, badgeStack.badge_array[0], commander01, commander01.blood, [])
-player02 = Player(user02, badgeStack.badge_array[1], commander01, commander01.blood, [])
-player03 = Player(user03, badgeStack.badge_array[2], commander01, commander01.blood, [])
-player04 = Player(user04, badgeStack.badge_array[3], commander01, commander01.blood, [])
-player05 = Player(user05, badgeStack.badge_array[4], commander01, commander01.blood, [])
+player01 = Player(user01, badgeStack.badge_array[0], commander01, [])
+player02 = Player(user02, badgeStack.badge_array[1], commander01, [])
+player03 = Player(user03, badgeStack.badge_array[2], commander01, [])
+player04 = Player(user04, badgeStack.badge_array[3], commander01, [])
+player05 = Player(user05, badgeStack.badge_array[4], commander01, [])
 
 players = [player01, player02, player03, player04, player05]
 
@@ -1366,78 +1366,81 @@ def push_card_from_arr(point, card):
         targets_str = input("选择至多 2 名玩家作为铁锁连环目标(多名玩家用空格隔开)\n")
         targets_arr = targets_str.split(" ")
 
+        # 判断选中的目标个数
+        # 如果是1个，直接做处理
         if len(targets_arr) == 1:
-
-            # 选中的第一个玩家
-            target_player_1 = ""
+            # 取出第一个索引的座位号
+            target_index = targets_arr[0]
+            # 选中玩家
+            target_player = ""
             for i in range(len(target_players_all_and_me)):
-                if target_players_all_and_me[i].location == int(targets_arr[0]):
-                    target_player_1 = target_players_all_and_me[i]
+                if target_players_all_and_me[i].location == int(target_index):
+                    target_player = target_players_all_and_me[i]
+                    break
 
-            # 对 第一个玩家 操作
-            if target_player_1.mark_card["tiesuolianhuan"]:
-                target_player_1.mark_card["tiesuolianhuan"] = False
-                print(f"{target_player_1.user.nickname} 已解除铁索连环")
+            # 对 选中的玩家 的操作
+            if target_player.mark_card["tiesuolianhuan"]:
+                target_player.mark_card["tiesuolianhuan"] = False
+                print(f"{target_player.user.nickname} 已解除铁索连环")
             else:
-                target_player_1.mark_card["tiesuolianhuan"] = True
-                print(f"{target_player_1.user.nickname} 已被铁索连环")
+                target_player.mark_card["tiesuolianhuan"] = True
+                print(f"{target_player.user.nickname} 已被铁索连环")
+        # 如果是大于或者等于2个，只处理前两个
+        elif len(targets_arr) >=2:
+            # 循环遍历两次
+            for index in range(2):
+                # 每次取出一个座位号
+                target_index = targets_arr[index]
+                # 选中玩家
+                target_player = ""
+                for i in range(len(target_players_all_and_me)):
+                    if target_players_all_and_me[i].location == int(target_index):
+                        target_player = target_players_all_and_me[i]
+                        break
 
-        elif len(targets_arr) > 1:
+                # 对 选中的玩家 的操作
+                if target_player.mark_card["tiesuolianhuan"]:
+                    target_player.mark_card["tiesuolianhuan"] = False
+                    print(f"{target_player.user.nickname} 已解除铁索连环")
+                else:
+                    target_player.mark_card["tiesuolianhuan"] = True
+                    print(f"{target_player.user.nickname} 已被铁索连环")
 
-            # 选中的第一个玩家
-            target_player_1 = ""
-            for i in range(len(target_players_all_and_me)):
-                if target_players_all_and_me[i].location == int(targets_arr[0]):
-                    target_player_1 = target_players_all_and_me[i]
-            # 选中的第二个玩家
-            target_player_2 = ""
-            for i in range(len(target_players_all_and_me)):
-                if target_players_all_and_me[i].location == int(targets_arr[1]):
-                    target_player_2 = target_players_all_and_me[i]
 
-            # 对 第一个玩家 操作
-            if target_player_1.mark_card["tiesuolianhuan"]:
-                target_player_1.mark_card["tiesuolianhuan"] = False
-                print(f"{target_player_1.user.nickname} 已解除铁索连环")
-            else:
-                target_player_1.mark_card["tiesuolianhuan"] = True
-                print(f"{target_player_1.user.nickname} 已被铁索连环")
 
-            # 对 第二个玩家 操作
-            if target_player_2.mark_card["tiesuolianhuan"]:
-                target_player_2.mark_card["tiesuolianhuan"] = False
-                print(f"{target_player_2.user.nickname} 已解除铁索连环")
-            else:
-                target_player_2.mark_card["tiesuolianhuan"] = True
-                print(f"{target_player_2.user.nickname} 已被铁索连环")
 
     # -- 乐不思蜀 --
     if card.category == 301:
+
         show_target_players_all()
-        target_location = int(input("请选择一个目标\n"))
+        target_location_for_lebusishu = int(input("请选择一个目标\n"))
 
         # 选中的一个玩家
         target_player = ""
         for i in range(len(target_players_all)):
-            if target_players_all[i].location == target_location:
+            if target_players_all[i].location == target_location_for_lebusishu:
                 target_player = target_players_all[i]
 
         if target_player.mark_skil_bag["lebusishu"] != "":
             return False
+        else:
+            target_player.mark_skil_bag["lebusishu"] = card
 
-        target_player.mark_skil_bag["lebusishu"] = card
-
-        return True
+        # 将这张乐不思蜀放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
 
     # -- 闪电 --
     if card.category == 302:
 
         if point.mark_skil_bag["shandian"] != "":
             return False
+        else:
+            point.mark_skil_bag["shandian"] = card
 
-        point.mark_skil_bag["shandian"] = card
-
-        return True
+        # 将这张闪电放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
 
     # -- 兵粮寸断 --
     if card.category == 303:
@@ -1453,10 +1456,12 @@ def push_card_from_arr(point, card):
 
         if target_player.mark_skil_bag["bingliangcunduan"] != "":
             return False
+        else:
+            target_player.mark_skil_bag["bingliangcunduan"] = card
 
-        target_player.mark_skil_bag["bingliangcunduan"] = card
-
-        return True
+        # 将这张兵粮寸断放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.addCardForArray(card)
 
     # ------------------------------
     #   武器牌出牌逻辑
@@ -1610,8 +1615,6 @@ def push_card_from_arr(point, card):
         point.popCardForAll(card)
         discardStack.addCardForArray(card)
 
-
-
 ########## 开始回合
 while True:
 
@@ -1697,8 +1700,8 @@ while True:
 
             # 把要出的牌的对象传递给出牌逻辑函数
             result = push_card_from_arr(point, point.showCardForArray(card_index))
-            if result==True:
-                discardStack.addCardForArray(card_index)
+            if result==False:
+                print("出牌失败")
 
 
     # 当前玩家弃牌阶段

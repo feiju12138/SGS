@@ -3,72 +3,8 @@
 """
 class Player():
 
-    # 用户信息
-    user = ""
-
-    # 身份
-    badge = ""
-
-    # 武将信息
-    commander = ""
-
-    # 当前血量
-    blood = ""
-
     # 当前手牌
     __card_array = []
-
-    # 装备区
-    equipment = {
-        "arms": "",
-        "armor": "",
-        "horse+": "",
-        "horse-": ""
-    }
-
-    # 延时锦囊标记
-    mark_skil_bag = {
-        # 乐不思蜀
-        "lebusishu": "",
-        # 闪电
-        "shandian": "",
-        # 兵粮寸断
-        "bingliangcunduan": ""
-    }
-
-    # 卡牌相关标记
-    mark_card = {
-        # 铁索连环
-        "tiesuolianhuan": False
-    }
-
-    # 技能相关标记
-    mark_skill = {
-
-    }
-
-    # 当前回合标记
-    mark_bout = {
-        # 当前回合是否出过杀
-        "sha": False,
-        # 酒
-        "jiu": False
-
-    }
-
-    # 阵亡标记
-    is_die = False
-
-    # 座位编号
-    location = ""
-
-    # 下家（右手边的玩家）
-    right_player = ""
-
-    # 上家（左手边的玩家）
-    left_player = ""
-
-
 
     # 获取所有手牌的数量
     def lenCardForArray(self):
@@ -134,12 +70,72 @@ class Player():
     def addCardForArray(self, card):
         self.__card_array.append(card)
 
-    def __init__(self, user, badge, commander, blood, card_array):
+    def __init__(self, user, badge, commander, card_array):
+
+        # 用户信息
         self.user = user
+
+        # 身份信息
         self.badge = badge
+
+        # 武将信息
         self.commander = commander
-        self.blood = blood
+
+        # 体力
+        self.blood = commander.blood
+
+        # 手牌
         self.__card_array = card_array
+
+        # 装备区
+        self.equipment = {
+            "arms": "",
+            "armor": "",
+            "horse+": "",
+            "horse-": ""
+        }
+
+        # 延时锦囊标记
+        self.mark_skil_bag = {
+            # 乐不思蜀
+            "lebusishu": "",
+            # 闪电
+            "shandian": "",
+            # 兵粮寸断
+            "bingliangcunduan": ""
+        }
+
+        # 卡牌相关标记
+        self.mark_card = {
+            # 铁索连环
+            "tiesuolianhuan": False
+        }
+
+        # 技能相关标记
+        self.mark_skill = {
+
+        }
+
+        # 当前回合标记
+        self.mark_bout = {
+            # 当前回合是否出过杀
+            "sha": False,
+            # 酒
+            "jiu": False
+
+        }
+
+        # 阵亡标记
+        self.is_die = False
+
+        # 座位编号
+        self.location = ""
+
+        # 下家（右手边的玩家）
+        self.right_player = ""
+
+        # 上家（左手边的玩家）
+        self.left_player = ""
 
 
     def __str__(self):

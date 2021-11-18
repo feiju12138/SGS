@@ -608,7 +608,11 @@ class CardStack():
     def __init__(self):
 
         for i in range(80):
-            self.__card_array.append(TieSuoLianHuan())
+            self.__card_array.append(ZhuGeLianNu())
+            self.__card_array.append(JieDaoShaRen())
+            self.__card_array.append(Sha())
+            self.__card_array.append(LeiSha())
+            self.__card_array.append(HuoSha())
 
 
         # 基本牌100
@@ -627,7 +631,7 @@ class CardStack():
             # self.__card_array.append(GuoHeChaiQiao()) # 已自测
             # self.__card_array.append(ShunShouQianYang()) # 已自测
             # self.__card_array.append(WuZhongShengYou()) # 已自测
-            # self.__card_array.append(JieDaoShaRen())
+            # self.__card_array.append(JieDaoShaRen()) # 已自测
             # self.__card_array.append(WuXieKeJi()) # 已自测
             # self.__card_array.append(NanManRuQin()) # 已自测
             # self.__card_array.append(WanJianQiFa()) # 已自测
