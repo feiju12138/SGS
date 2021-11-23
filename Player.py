@@ -3,74 +3,9 @@
 """
 class Player():
 
-    # 当前手牌
-    __card_array = []
 
-    # 获取所有手牌的数量
-    def lenCardForArray(self):
-        return len(self.__card_array)
 
-    # 移除指定位置的手牌
-    def popCardForArray(self, index):
-        return self.__card_array.pop(index)
-
-    # 移除指定手牌
-    def popCard(self, card):
-        for i in range(len(self.__card_array)):
-            if self.__card_array[i]==card:
-                return self.__card_array.pop(i)
-        print("DEBUG: 移除手牌失败")
-        return None
-
-    # 移除任意牌（含手牌、装备牌、延时锦囊牌）
-    def popCardForAll(self, card):
-        for i in range(len(self.__card_array)):
-            if self.__card_array[i]==card:
-                return self.__card_array.pop(i)
-        if self.equipment["arms"] != "" and self.equipment["arms"]==card:
-                c = card
-                self.equipment["arms"] = ""
-                return c
-        if self.equipment["armor"] != "" and self.equipment["armor"]==card:
-                c = card
-                self.equipment["armor"] = ""
-                return c
-        if self.equipment["horse+"] != "" and self.equipment["horse+"]==card:
-                c = card
-                self.equipment["horse+"] = ""
-                return c
-        if self.equipment["horse-"] != "" and self.equipment["horse-"]==card:
-                c = card
-                self.equipment["horse-"] = ""
-                return c
-        if self.mark_skil_bag["lebusishu"] != "" and self.equipment["lebusishu"]==card:
-                c = card
-                self.mark_skil_bag["lebusishu"] = ""
-                return c
-        if self.mark_skil_bag["shandian"] != "" and self.equipment["shandian"]==card:
-                c = card
-                self.mark_skil_bag["shandian"] = ""
-                return c
-        if self.mark_skil_bag["bingliangcunduan"] != "" and self.equipment["bingliangcunduan"]==card:
-                c = card
-                self.mark_skil_bag["bingliangcunduan"] = ""
-                return c
-        print("DEBUG: 移除牌失败")
-        return None
-
-    # 获取指定位置的手牌
-    def showCardForArray(self, index):
-        return self.__card_array[index]
-
-    # 获取所有手牌
-    def listCardForArray(self):
-        return self.__card_array
-
-    # 添加一张手牌
-    def addCardForArray(self, card):
-        self.__card_array.append(card)
-
-    def __init__(self, user, badge, commander, card_array):
+    def __init__(self, user, badge, commander):
 
         # 用户信息
         self.user = user
@@ -85,7 +20,7 @@ class Player():
         self.blood = commander.blood
 
         # 手牌
-        self.__card_array = card_array
+        self.card_array = []
 
         # 装备区
         self.equipment = {
@@ -138,6 +73,51 @@ class Player():
         self.left_player = ""
 
 
+    # 移除指定手牌
+    def popCard(self, card):
+        for i in range(len(self.card_array)):
+            if self.card_array[i]==card:
+                return self.card_array.pop(i)
+        print("DEBUG: 移除手牌失败")
+        return None
+
+    # 移除任意牌（含手牌、装备牌、延时锦囊牌）
+    def popCardForAll(self, card):
+        for i in range(len(self.card_array)):
+            if self.card_array[i]==card:
+                return self.card_array.pop(i)
+        if self.equipment["arms"] != "" and self.equipment["arms"]==card:
+                c = card
+                self.equipment["arms"] = ""
+                return c
+        if self.equipment["armor"] != "" and self.equipment["armor"]==card:
+                c = card
+                self.equipment["armor"] = ""
+                return c
+        if self.equipment["horse+"] != "" and self.equipment["horse+"]==card:
+                c = card
+                self.equipment["horse+"] = ""
+                return c
+        if self.equipment["horse-"] != "" and self.equipment["horse-"]==card:
+                c = card
+                self.equipment["horse-"] = ""
+                return c
+        if self.mark_skil_bag["lebusishu"] != "" and self.equipment["lebusishu"]==card:
+                c = card
+                self.mark_skil_bag["lebusishu"] = ""
+                return c
+        if self.mark_skil_bag["shandian"] != "" and self.equipment["shandian"]==card:
+                c = card
+                self.mark_skil_bag["shandian"] = ""
+                return c
+        if self.mark_skil_bag["bingliangcunduan"] != "" and self.equipment["bingliangcunduan"]==card:
+                c = card
+                self.mark_skil_bag["bingliangcunduan"] = ""
+                return c
+        print("DEBUG: 移除牌失败")
+        return None
+
+
     def __str__(self):
 
         return f"---\n" \
@@ -147,4 +127,4 @@ class Player():
                f"位置号 - {self.location}\n" \
                f"武将信息 - {self.commander.name}\n" \
                f"当前血量 - {self.blood}\n" \
-               f"当前手牌 - {self.__card_array}\n"
+               f"当前手牌 - {self.card_array}\n"

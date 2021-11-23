@@ -72,24 +72,17 @@ class Card:
     name = ""
 
     """
-    花色
-    """
-    color = ""
-
-    """
-    点数
-    """
-    points = ""
-
-    """
-    点数权值
-    """
-    points_weight = ""
-
-    """
     武器的范围
     """
     scope = ""
+
+    def __init__(self):
+        # 花色
+        self.color = ["红桃♥", "方片♦", "黑桃♠", "梅花♣"][random.randint(0, 3)]
+        # 点数
+        self.points = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"][random.randint(0, 12)]
+        # 权值
+        self.weight()
 
     # 根据点数赋值权值
     def weight(self):
@@ -119,11 +112,6 @@ class Card:
             self.points_weight = 12
         elif self.points == "K":
             self.points_weight = 13
-
-    def __init__(self):
-        self.color = ["红桃♥", "方片♦", "黑桃♠", "梅花♣"][random.randint(0, 3)]
-        self.points = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"][random.randint(0, 12)]
-        self.weight()
 
     def __str__(self):
         return f"这是一个卡牌对象\n" \
@@ -584,106 +572,90 @@ class DaWan(Card):
 """
 class CardStack():
 
-    __card_array = []
+    card_array = []
 
     # 洗牌
     def rand_card_array(self):
         # 创建一个缓存，用于临时存放打乱顺序的牌堆
         card_array_cache = []
         # 遍历以前的卡牌列表
-        while len(self.__card_array) != 0:
+        while len(self.card_array) != 0:
             # 每次随机弹出一个数据，并追加到缓存中
-            card_array_cache.append(self.__card_array.pop(random.randint(0, len(self.__card_array)-1)))
+            card_array_cache.append(self.card_array.pop(random.randint(0, len(self.card_array)-1)))
         # 循环结束后，把缓存赋值给原牌堆
-        self.__card_array = card_array_cache
-
-    # 从牌堆顶拿一张牌
-    def popCardFromTop(self):
-        return self.__card_array.pop()
-
-    # 从牌堆顶底一张牌
-    def popCardFromBottom(self):
-        return self.__card_array.pop(0)
+        self.card_array = card_array_cache
 
     def __init__(self):
 
-        for i in range(80):
-            self.__card_array.append(ZhuGeLianNu())
-            self.__card_array.append(JieDaoShaRen())
-            self.__card_array.append(Sha())
-            self.__card_array.append(LeiSha())
-            self.__card_array.append(HuoSha())
-
-
         # 基本牌100
         for i in range(20):
-            # self.__card_array.append(Sha())
-            # self.__card_array.append(Shan())
-            # self.__card_array.append(Tao())
-            # self.__card_array.append(Jiu())
-            # self.__card_array.append(HuoSha())
-            # self.__card_array.append(LeiSha())
+            self.card_array.append(Sha())
+            self.card_array.append(Shan())
+            self.card_array.append(Tao())
+            self.card_array.append(Jiu())
+            self.card_array.append(HuoSha())
+            self.card_array.append(LeiSha())
             pass
 
         # 非延时锦囊200
         for i in range(10):
-            # self.__card_array.append(JueDou()) # 已自测
-            # self.__card_array.append(GuoHeChaiQiao()) # 已自测
-            # self.__card_array.append(ShunShouQianYang()) # 已自测
-            # self.__card_array.append(WuZhongShengYou()) # 已自测
-            # self.__card_array.append(JieDaoShaRen()) # 已自测
-            # self.__card_array.append(WuXieKeJi()) # 已自测
-            # self.__card_array.append(NanManRuQin()) # 已自测
-            # self.__card_array.append(WanJianQiFa()) # 已自测
-            # self.__card_array.append(TaoYuanJieYi()) # 已自测
-            # self.__card_array.append(WuGuFengDeng()) # 已自测
-            # self.__card_array.append(HuoGong())
-            # self.__card_array.append(TieSuoLianHuan()) # 已自测
+            self.card_array.append(JueDou())
+            self.card_array.append(GuoHeChaiQiao())
+            self.card_array.append(ShunShouQianYang())
+            self.card_array.append(WuZhongShengYou())
+            self.card_array.append(JieDaoShaRen())
+            self.card_array.append(WuXieKeJi())
+            self.card_array.append(NanManRuQin())
+            self.card_array.append(WanJianQiFa())
+            self.card_array.append(TaoYuanJieYi())
+            self.card_array.append(WuGuFengDeng())
+            self.card_array.append(HuoGong())
+            self.card_array.append(TieSuoLianHuan())
             pass
 
         # 延时锦囊300
         for i in range(5):
-            # self.__card_array.append(LeBuSiShu())
-            # self.__card_array.append(ShanDian())
-            # self.__card_array.append(BingLiangCunDuan())
+            self.card_array.append(LeBuSiShu())
+            self.card_array.append(ShanDian())
+            self.card_array.append(BingLiangCunDuan())
             pass
 
         # 武器牌400
         for i in range(2):
-            # self.__card_array.append(ZhuGeLianNu())
-            # self.__card_array.append(QingGangJian())
-            # self.__card_array.append(CiXiongShuangGuJian())
-            # self.__card_array.append(GuanShiFu())
-            # self.__card_array.append(QingLongYanYueDao())
-            # self.__card_array.append(ZhangBaSheMao())
-            # self.__card_array.append(FangTianHuaJi())
-            # self.__card_array.append(QiLinGong())
-            # self.__card_array.append(GuDingDao())
-            # self.__card_array.append(ZhuQueYuShan())
-            # self.__card_array.append(HanBingJian())
+            self.card_array.append(ZhuGeLianNu())
+            self.card_array.append(QingGangJian())
+            self.card_array.append(CiXiongShuangGuJian())
+            self.card_array.append(GuanShiFu())
+            self.card_array.append(QingLongYanYueDao())
+            self.card_array.append(ZhangBaSheMao())
+            self.card_array.append(FangTianHuaJi())
+            self.card_array.append(QiLinGong())
+            self.card_array.append(GuDingDao())
+            self.card_array.append(ZhuQueYuShan())
+            self.card_array.append(HanBingJian())
             pass
 
         # 防具牌500
         for i in range(3):
-            # self.__card_array.append(BaGuaZhen())
-            # self.__card_array.append(BaiYinShiZi())
-            # self.__card_array.append(TengJia())
-            # self.__card_array.append(RenWangDun())
+            self.card_array.append(BaGuaZhen())
+            self.card_array.append(BaiYinShiZi())
+            self.card_array.append(TengJia())
+            self.card_array.append(RenWangDun())
             pass
 
         # +马600
         for i in range(5):
-            # self.__card_array.append(ZhuaHuangFeiDian())
-            # self.__card_array.append(DiLu())
-            # self.__card_array.append(JueYing())
-            # self.__card_array.append(HuaLiu())
+            self.card_array.append(ZhuaHuangFeiDian())
+            self.card_array.append(DiLu())
+            self.card_array.append(JueYing())
+            self.card_array.append(HuaLiu())
             pass
 
         # -马700
         for i in range(5):
-            # self.__card_array.append(ChiTu())
-            # self.__card_array.append(ZiXing())
-            # self.__card_array.append(DaWan())
+            self.card_array.append(ChiTu())
+            self.card_array.append(ZiXing())
+            self.card_array.append(DaWan())
             pass
 
         # 洗牌
@@ -691,33 +663,25 @@ class CardStack():
 
     def __str__(self):
 
-        for i in self.__card_array:
+        for i in self.card_array:
             print(i)
 
         return f"这是一个摸牌堆对象\n" \
-               f"当前牌堆 - {self.__card_array}\n" \
-               f"当前牌堆卡牌总数 - {len(self.__card_array)}\n" \
+               f"当前牌堆 - {self.card_array}\n" \
+               f"当前牌堆卡牌总数 - {len(self.card_array)}\n" \
                f"---"
 
 """
-出牌堆类
+弃牌堆类
 """
 class DiscardStack():
 
-    __card_array = []
-
-    # 向出牌堆顶部添加一张牌
-    def addCardForArray(self, card):
-        self.__card_array.append(card)
-
-    def __init__(self):
-
-        pass
+    card_array = []
 
     def __str__(self):
         return f"---\n" \
                f"这是一个出牌堆对象\n" \
-               f"当前牌堆 - {self.__card_array}\n" \
-               f"当前牌堆卡牌总数 - {len(self.__card_array)}\n"
+               f"当前牌堆 - {self.card_array}\n" \
+               f"当前牌堆卡牌总数 - {len(self.card_array)}\n"
 
 

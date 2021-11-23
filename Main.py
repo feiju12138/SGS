@@ -52,11 +52,11 @@ commander01 = Commander("01", "0", "武将", 4, [])
 
 ########## 初始化玩家
 # 创建5个玩家
-player01 = Player(user01, badgeStack.badge_array[0], commander01, [])
-player02 = Player(user02, badgeStack.badge_array[1], commander01, [])
-player03 = Player(user03, badgeStack.badge_array[2], commander01, [])
-player04 = Player(user04, badgeStack.badge_array[3], commander01, [])
-player05 = Player(user05, badgeStack.badge_array[4], commander01, [])
+player01 = Player(user01, badgeStack.badge_array[0], commander01)
+player02 = Player(user02, badgeStack.badge_array[1], commander01)
+player03 = Player(user03, badgeStack.badge_array[2], commander01)
+player04 = Player(user04, badgeStack.badge_array[3], commander01)
+player05 = Player(user05, badgeStack.badge_array[4], commander01)
 
 players = [player01, player02, player03, player04, player05]
 
@@ -130,9 +130,9 @@ del(index)
 print("玩家初始化完成")
 
 ########## 分发起始手牌
-for i in players:
-    for j in range(4):
-        i.addCardForArray(cardStack.popCardFromTop())
+for p in players:
+    for num in range(4):
+        p.card_array.append(cardStack.card_array.pop())
 
 print("起始手牌初始化完成")
 
@@ -212,7 +212,7 @@ def show_player_user(point):
 ##### 展示当前玩家手牌函数
 def show_player_card_arr(point):
     print(f"----- {point.user.nickname}当前的手牌列表 -----")
-    card_arr = point.listCardForArray()
+    card_arr = point.card_array
     for i in range(len(card_arr)):
         print(f"{i} - {card_arr[i].color}{card_arr[i].points} - {card_arr[i].name}")
     print("----------")
@@ -309,8 +309,8 @@ def push_card_from_arr(point, card):
 
     # --- 列出有手牌的所有人 ---
     target_card_not_null = []
-    for target_player in target_players_all_and_me:
-        if target_player.lenCardForArray!=0:
+    for target_player in target_players_all:
+        if len(target_player.card_array)!=0:
             target_card_not_null.append(target_player)
     # 展示有手牌的全部玩家和其座位号
     def show_target_card_not_null():
@@ -356,6 +356,10 @@ def push_card_from_arr(point, card):
             if target_players_for_sha[i].location == target_location:
                 target_player = target_players_for_sha[i]
 
+        # 将这杀放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.card_array.append(card)
+
         # 造成的伤害
         shanghai = 1
 
@@ -369,9 +373,9 @@ def push_card_from_arr(point, card):
         show_player_card_arr(target_player)
         # 是否有闪开关，默认没有闪
         key = False
-        for i in range(target_player.lenCardForArray()):
+        for i in range(len(target_player.card_array)):
 
-            if target_player.showCardForArray(i).category==102:
+            if target_player.card_array[i].category==102:
                 shan_index = int(input("请出一张闪，或放弃出闪(-1)\n"))
                 # 结算开关，默认关闭
                 end = False
@@ -379,7 +383,7 @@ def push_card_from_arr(point, card):
                     # 有闪不出
                     if shan_index==-1:
                         target_player.blood -= shanghai
-                        print("目标玩家有闪不出，失去一点体力")
+                        print(f"目标玩家有闪不出，失去 {shanghai} 点体力")
                         # 死亡判断
                         result = death_judgment()
                         if result != 0:
@@ -391,11 +395,11 @@ def push_card_from_arr(point, card):
                         break
                     # 有闪出闪
                     elif shan_index!=-1:
-                        if target_player.showCardForArray(shan_index).category!=102:
+                        if target_player.card_array[shan_index].category!=102:
                             shan_index = int(input("输入有误，请出一张闪，或放弃出闪(-1)\n"))
                             continue
-                        c = target_player.popCardForArray(shan_index)
-                        discardStack.addCardForArray(c)
+                        c = target_player.card_array.pop(shan_index)
+                        discardStack.card_array.append(c)
                         print("目标玩家出了一张闪")
                         # 是否有闪
                         key = True
@@ -422,21 +426,31 @@ def push_card_from_arr(point, card):
 
     # -- 桃 --
     if card.category==103:
+
         if point.blood==point.commander.blood:
             print("满血不能使用桃")
             return False
+
         point.blood += 1
         print("使用桃恢复了一点体力")
-        return True
+
+        # 将这杀放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.card_array.append(card)
 
     # -- 酒 --
     if card.category==104:
+
         if point.mark_bout["jiu"]:
             print("当前回合已经出过酒了，不能再出一张")
             return False
+
         print("喝了一口酒")
         point.mark_bout["jiu"] = True
-        return True
+
+        # 将这杀放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.card_array.append(card)
 
     # -- 火杀 --
     if card.category==105:
@@ -450,6 +464,10 @@ def push_card_from_arr(point, card):
         for i in range(len(target_players_for_sha)):
             if target_players_for_sha[i].location == target_location:
                 target_player = target_players_for_sha[i]
+
+        # 将这火杀放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.card_array.append(card)
 
         # 造成的伤害
         shanghai = 1
@@ -468,8 +486,8 @@ def push_card_from_arr(point, card):
         show_player_card_arr(target_player)
         # 是否有闪开关
         key = False
-        for i in range(target_player.lenCardForArray()):
-            if target_player.showCardForArray(i).category == 102:
+        for i in range(len(target_player.card_array)):
+            if target_player.card_array[i].category == 102:
                 shan_index = int(input("请出一张闪，或放弃出闪(-1)\n"))
                 # 结算开关，默认关闭
                 end = False
@@ -477,7 +495,7 @@ def push_card_from_arr(point, card):
                     # 有闪不出
                     if shan_index == -1:
                         target_player.blood -= shanghai
-                        print("目标玩家有闪不出，失去一点体力")
+                        print(f"目标玩家有闪不出，失去 {shanghai} 点体力")
                         # 死亡判断
                         result = death_judgment()
                         if result != 0:
@@ -496,11 +514,11 @@ def push_card_from_arr(point, card):
                         break
                     # 有闪出闪
                     elif shan_index != -1:
-                        if target_player.showCardForArray(shan_index).category != 102:
+                        if target_player.card_array[shan_index].category != 102:
                             shan_index = int(input("输入有误，请出一张闪，或放弃出闪(-1)\n"))
                             continue
-                        c = target_player.popCardForArray(shan_index)
-                        discardStack.addCardForArray(c)
+                        c = target_player.card_array.pop(shan_index)
+                        discardStack.card_array.append(c)
                         print("目标玩家出了一张闪")
                         # 是否有闪
                         key = True
@@ -538,6 +556,10 @@ def push_card_from_arr(point, card):
             if target_players_for_sha[i].location == target_location:
                 target_player = target_players_for_sha[i]
 
+        # 将这雷杀放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.card_array.append(card)
+
         # 造成的伤害
         shanghai = 1
 
@@ -551,8 +573,8 @@ def push_card_from_arr(point, card):
         show_player_card_arr(target_player)
         # 是否有闪开关
         key = False
-        for i in range(target_player.lenCardForArray()):
-            if target_player.showCardForArray(i).category == 102:
+        for i in range(len(target_player.card_array)):
+            if target_player.card_array[i].category == 102:
                 shan_index = int(input("请出一张闪，或放弃出闪(-1)\n"))
                 # 结算开关，默认关闭
                 end = False
@@ -560,7 +582,7 @@ def push_card_from_arr(point, card):
                     # 有闪不出
                     if shan_index == -1:
                         target_player.blood -= shanghai
-                        print("目标玩家有闪不出，失去一点体力")
+                        print(f"目标玩家有闪不出，失去 {shanghai} 点体力")
                         # 死亡判断
                         result = death_judgment()
                         if result != 0:
@@ -579,11 +601,11 @@ def push_card_from_arr(point, card):
                         break
                     # 有闪出闪
                     elif shan_index != -1:
-                        if target_player.showCardForArray(shan_index).category != 102:
+                        if target_player.card_array[shan_index].category != 102:
                             shan_index = int(input("输入有误，请出一张闪，或放弃出闪(-1)\n"))
                             continue
-                        c = target_player.popCardForArray(shan_index)
-                        discardStack.addCardForArray(c)
+                        c = target_player.card_array.pop(shan_index)
+                        discardStack.card_array.append(c)
                         print("目标玩家出了一张闪")
                         # 是否有闪
                         key = True
@@ -618,7 +640,7 @@ def push_card_from_arr(point, card):
 
         # 将这张过河拆桥放入弃牌堆
         point.popCardForAll(card)
-        discardStack.addCardForArray(card)
+        discardStack.card_array.append(card)
 
         show_target_players_all()
         target_location = int(input("请选择一个目标\n"))
@@ -645,10 +667,10 @@ def push_card_from_arr(point, card):
 
                 # 是否有杀开关
                 key = False
-                for i in range(target_player.lenCardForArray()):
-                    if target_player.showCardForArray(i).category == 101 \
-                            or target_player.showCardForArray(i).category == 105 \
-                            or target_player.showCardForArray(i).category == 106:
+                for i in range(len(target_player.card_array)):
+                    if target_player.card_array[i].category == 101 \
+                            or target_player.card_array[i].category == 105 \
+                            or target_player.card_array[i].category == 106:
                         sha_index = int(input("请出一张杀，或放弃出杀(-1)\n"))
                         # 当前结算开关，默认关闭
                         end = False
@@ -670,13 +692,13 @@ def push_card_from_arr(point, card):
                                 break
                             # 有杀出杀
                             elif sha_index != -1:
-                                if target_player.showCardForArray(sha_index).category != 101 \
-                                        and target_player.showCardForArray(sha_index).category != 105 \
-                                        and target_player.showCardForArray(sha_index).category != 106:
+                                if target_player.card_array[sha_index].category != 101 \
+                                        and target_player.card_array[sha_index].category != 105 \
+                                        and target_player.card_array[sha_index].category != 106:
                                     sha_index = int(input("输入有误，请出一张杀，或放弃出杀(-1)\n"))
                                     continue
-                                c = target_player.popCardForArray(sha_index)
-                                discardStack.addCardForArray(c)
+                                c = target_player.card_array.pop(sha_index)
+                                discardStack.card_array.append(c)
                                 print("目标玩家出了一张杀")
                                 # 是否有杀
                                 key = True
@@ -709,10 +731,10 @@ def push_card_from_arr(point, card):
 
                 # 是否有杀开关
                 key = False
-                for i in range(point.lenCardForArray()):
-                    if point.showCardForArray(i).category == 101 \
-                            or point.showCardForArray(i).category == 105 \
-                            or point.showCardForArray(i).category == 106:
+                for i in range(len(point.card_array)):
+                    if point.card_array[i].category == 101 \
+                            or point.card_array[i].category == 105 \
+                            or point.card_array[i].category == 106:
                         sha_index = int(input("请出一张杀，或放弃出杀(-1)\n"))
                         # 当前结算开关，默认关闭
                         end = False
@@ -734,13 +756,13 @@ def push_card_from_arr(point, card):
                                 break
                             # 有杀出杀
                             elif sha_index != -1:
-                                if point.showCardForArray(sha_index).category != 101 \
-                                        and point.showCardForArray(sha_index).category != 105 \
-                                        and point.showCardForArray(sha_index).category != 106:
+                                if point.card_array[sha_index].category != 101 \
+                                        and point.card_array[sha_index].category != 105 \
+                                        and point.card_array[sha_index].category != 106:
                                     sha_index = int(input("输入有误，请出一张杀，或放弃出杀(-1)\n"))
                                     continue
-                                c = point.popCardForArray(sha_index)
-                                discardStack.addCardForArray(c)
+                                c = point.card_array.pop(sha_index)
+                                discardStack.card_array.append(c)
                                 print("当前玩家出了一张杀")
                                 # 是否有杀
                                 key = True
@@ -776,7 +798,7 @@ def push_card_from_arr(point, card):
                 target_player = target_players_all[i]
 
         # 当没牌可以拆桥时
-        if target_player.lenCardForArray==0 \
+        if len(target_player.card_array)==0 \
                 and target_player.equipment["arms"]=="" \
                 and target_player.equipment["armor"]=="" \
                 and target_player.equipment["horse+"]=="" \
@@ -788,13 +810,13 @@ def push_card_from_arr(point, card):
 
         # 将这张过河拆桥放入弃牌堆
         point.popCardForAll(card)
-        discardStack.addCardForArray(card)
+        discardStack.card_array.append(card)
 
         # 临时存储所有可选择的牌
         target_card_arr_all = []
 
         # 把手牌存入可选牌
-        for target_card in target_player.listCardForArray():
+        for target_card in target_player.card_array:
             target_card_arr_all.append(target_card)
 
         # 把装备牌存入可选牌
@@ -823,7 +845,7 @@ def push_card_from_arr(point, card):
         result = target_player.popCardForAll(target_card_arr_all[index_for_chaiqiao])
 
         # 选中的牌放入弃牌堆
-        discardStack.addCardForArray(result)
+        discardStack.card_array.append(result)
 
     # -- 顺手牵羊 --
     if card.category == 203:
@@ -838,7 +860,7 @@ def push_card_from_arr(point, card):
                 target_player = target_players[i]
 
         # 当没牌可以牵羊时
-        if target_player.lenCardForArray == 0 \
+        if len(target_player.card_array) == 0 \
                 and target_player.equipment["arms"] == "" \
                 and target_player.equipment["armor"] == "" \
                 and target_player.equipment["horse+"] == "" \
@@ -850,13 +872,13 @@ def push_card_from_arr(point, card):
 
         # 将这张顺手牵羊放入弃牌堆
         point.popCardForAll(card)
-        discardStack.addCardForArray(card)
+        discardStack.card_array.append(card)
 
         # 临时存储所有可选择的牌
         target_card_arr_all = []
 
         # 把手牌存入可选牌
-        for target_card in target_player.listCardForArray():
+        for target_card in target_player.card_array:
             target_card_arr_all.append(target_card)
 
         # 把装备牌存入可选牌
@@ -885,26 +907,21 @@ def push_card_from_arr(point, card):
         result = target_player.popCardForAll(target_card_arr_all[index_for_chaiqiao])
 
         # 选中的牌放到当前玩家手牌
-        point.addCardForArray(result)
+        point.card_array.append(result)
 
     # -- 无中生有 --
     if card.category == 204:
 
         # 将这张无中生有放入弃牌堆
         point.popCardForAll(card)
-        discardStack.addCardForArray(card)
+        discardStack.card_array.append(card)
 
         # 当前玩家摸两张牌
         for i in range(2):
-            point.addCardForArray(cardStack.popCardFromTop())
+            point.card_array.append(cardStack.card_array.pop())
 
     # -- 借刀杀人 --
     if card.category == 205:
-
-        #DEBUG
-        # 打印所有玩家及其武器
-        for target_player in target_players_all_and_me:
-            print(f"{target_player.location} - {target_player.user.nickname} - {target_player.equipment['arms'].name}")
 
         # 当没有有武器的目标时
         if len(target_arms_card_not_null)==0:
@@ -925,7 +942,7 @@ def push_card_from_arr(point, card):
         target_players_to_list = []
         target_player = target_player_from.right_player
         while target_player != target_player_from:
-            if GongJiJuLi(point, target_player) <= 1:
+            if GongJiJuLi(target_player_from, target_player) <= 1:
                 target_players_to_list.append(target_player)
             target_player = target_player.right_player
         # 展示杀的承受者的玩家和其座位号
@@ -948,41 +965,41 @@ def push_card_from_arr(point, card):
         print(f"请 {target_player_from.user.nickname} 出杀")
 
         # 是否有杀开关，默认没有杀
-        key = False
-        for i in range(target_player_from.lenCardForArray()):
+        key_sha = False
+        for i in range(len(target_player_from.card_array)):
 
-            if target_player_from.showCardForArray(i).category == 101 \
-                    or target_player_from.showCardForArray(i).category == 105 \
-                    or target_player_from.showCardForArray(i).category == 106:
+            if target_player_from.card_array[i].category == 101 \
+                    or target_player_from.card_array[i].category == 105 \
+                    or target_player_from.card_array[i].category == 106:
                 sha_index = int(input("请出一张杀，或放弃出杀(-1)\n"))
                 # 结算开关，默认关闭
-                end = False
+                end_sha = False
                 while True:
                     # 有杀不出
                     if sha_index == -1:
                         arms = target_player_from.equipment["arms"]
-                        point.addCardForArray(arms)
+                        point.card_array.append(arms)
                         target_player_from.equipment["arms"] = ""
                         print("目标玩家有杀不出，武器交给当前玩家")
                         # 是否有杀
-                        key = True
+                        key_sha = True
                         # 是否结算完成
-                        end = True
+                        end_sha = True
                         break
                     # 有杀出杀
                     elif sha_index != -1:
-                        if target_player_from.showCardForArray(sha_index).category != 101 \
-                                and target_player_from.showCardForArray(sha_index).category != 105 \
-                                and target_player_from.showCardForArray(sha_index).category != 106:
+                        if target_player_from.card_array[sha_index].category != 101 \
+                                and target_player_from.card_array[sha_index].category != 105 \
+                                and target_player_from.card_array[sha_index].category != 106:
                             sha_index = int(input("输入有误，请出一张杀，或放弃出杀(-1)\n"))
                             continue
-                        c = target_player_from.popCardForArray(sha_index)
-                        discardStack.addCardForArray(c)
+                        c = target_player_from.card_array.pop(sha_index)
+                        discardStack.card_array.append(c)
                         print("目标玩家出了一张杀")
                         # 是否有杀
-                        key = True
+                        key_sha = True
                         # 是否结算完成
-                        end = True
+                        end_sha = True
 
 
 
@@ -1000,18 +1017,18 @@ def push_card_from_arr(point, card):
                         # 展示目标玩家的手牌，确认是否出闪
                         show_player_card_arr(target_player_to)
                         # 是否有闪开关，默认没有闪
-                        key = False
-                        for i in range(target_player_to.lenCardForArray()):
+                        key_shan = False
+                        for i in range(len(target_player_to.card_array)):
 
-                            if target_player_to.showCardForArray(i).category == 102:
+                            if target_player_to.card_array[i].category == 102:
                                 shan_index = int(input("请出一张闪，或放弃出闪(-1)\n"))
                                 # 结算开关，默认关闭
-                                end = False
+                                end_shan = False
                                 while True:
                                     # 有闪不出
                                     if shan_index == -1:
                                         target_player_to.blood -= shanghai
-                                        print("目标玩家有闪不出，失去一点体力")
+                                        print(f"目标玩家有闪不出，失去 {shanghai} 点体力")
                                         # 死亡判断
                                         result = death_judgment()
                                         if result != 0:
@@ -1028,27 +1045,27 @@ def push_card_from_arr(point, card):
                                                     the_end = True
 
                                         # 是否有闪
-                                        key = True
+                                        key_shan = True
                                         # 是否结算完成
-                                        end = True
+                                        end_shan = True
                                         break
                                     # 有闪出闪
                                     elif shan_index != -1:
-                                        if target_player_to.showCardForArray(shan_index).category != 102:
+                                        if target_player_to.card_array[shan_index].category != 102:
                                             shan_index = int(input("输入有误，请出一张闪，或放弃出闪(-1)\n"))
                                             continue
-                                        c = target_player_to.popCardForArray(shan_index)
-                                        discardStack.addCardForArray(c)
+                                        c = target_player_to.card_array.pop(shan_index)
+                                        discardStack.card_array.append(c)
                                         print("目标玩家出了一张闪")
                                         # 是否有闪
-                                        key = True
+                                        key_shan = True
                                         # 是否结算完成
-                                        end = True
+                                        end_shan = True
                                         break
-                                if end:
+                                if end_shan:
                                     break
                         # 没有闪
-                        if key == False:
+                        if key_shan == False:
                             target_player_to.blood -= shanghai
                             print("目标玩家没有闪，失去一点体力")
                             # 死亡判断
@@ -1056,20 +1073,15 @@ def push_card_from_arr(point, card):
                             if result != 0:
                                 the_end = True
 
-
-
-
                         break
-                if end:
+                if end_sha:
                     break
         # 没有杀
-        if key == False:
+        if key_sha == False:
             arms = target_player_from.equipment["arms"]
-            point.addCardForArray(arms)
+            point.card_array.append(arms)
             target_player_from.equipment["arms"] = ""
             print("目标玩家没有杀，武器交给当前玩家")
-
-        return True
 
     # -- 无懈可击 --
     if card.category == 206:
@@ -1081,7 +1093,7 @@ def push_card_from_arr(point, card):
 
         # 将这张南蛮入侵放入弃牌堆
         point.popCardForAll(card)
-        discardStack.addCardForArray(card)
+        discardStack.card_array.append(card)
 
         for target_player in target_players_all:
 
@@ -1092,11 +1104,11 @@ def push_card_from_arr(point, card):
 
             # 是否有杀开关，默认没有杀
             key = False
-            for i in range(target_player.lenCardForArray()):
+            for i in range(len(target_player.card_array)):
 
-                if target_player.showCardForArray(i).category == 101 \
-                        or target_player.showCardForArray(i).category == 105 \
-                        or target_player.showCardForArray(i).category == 106:
+                if target_player.card_array[i].category == 101 \
+                        or target_player.card_array[i].category == 105 \
+                        or target_player.card_array[i].category == 106:
                     sha_index = int(input("请出一张杀，或放弃出杀(-1)\n"))
                     # 结算开关，默认关闭
                     end = False
@@ -1104,7 +1116,7 @@ def push_card_from_arr(point, card):
                         # 有杀不出
                         if sha_index == -1:
                             target_player.blood -= 1
-                            print("目标玩家有杀不出，失去一点体力")
+                            print("目标玩家有杀不出，失去 1 点体力")
                             # 死亡判断
                             result = death_judgment()
                             if result != 0:
@@ -1116,13 +1128,13 @@ def push_card_from_arr(point, card):
                             break
                         # 有杀出杀
                         elif sha_index != -1:
-                            if target_player.showCardForArray(sha_index).category != 101 \
-                                    and target_player.showCardForArray(sha_index).category != 105 \
-                                    and target_player.showCardForArray(sha_index).category != 106:
+                            if target_player.card_array[sha_index].category != 101 \
+                                    and target_player.card_array[sha_index].category != 105 \
+                                    and target_player.card_array[sha_index].category != 106:
                                 sha_index = int(input("输入有误，请出一张杀，或放弃出杀(-1)\n"))
                                 continue
-                            c = target_player.popCardForArray(sha_index)
-                            discardStack.addCardForArray(c)
+                            c = target_player.card_array.pop(sha_index)
+                            discardStack.card_array.append(c)
                             print("目标玩家出了一张杀")
                             # 是否有杀
                             key = True
@@ -1145,7 +1157,7 @@ def push_card_from_arr(point, card):
 
         # 将这张万箭齐发放入弃牌堆
         point.popCardForAll(card)
-        discardStack.addCardForArray(card)
+        discardStack.card_array.append(card)
 
         for target_player in target_players_all:
 
@@ -1156,9 +1168,9 @@ def push_card_from_arr(point, card):
 
             # 是否有闪开关，默认没有闪
             key = False
-            for i in range(target_player.lenCardForArray()):
+            for i in range(len(target_player.card_array)):
 
-                if target_player.showCardForArray(i).category == 102:
+                if target_player.card_array[i].category == 102:
                     shan_index = int(input("请出一张闪，或放弃出闪(-1)\n"))
                     # 结算开关，默认关闭
                     end = False
@@ -1166,7 +1178,7 @@ def push_card_from_arr(point, card):
                         # 有闪不出
                         if shan_index == -1:
                             target_player.blood -= 1
-                            print("目标玩家有闪不出，失去一点体力")
+                            print(f"目标玩家有闪不出，失去 1 点体力")
                             # 死亡判断
                             result = death_judgment()
                             if result != 0:
@@ -1178,11 +1190,11 @@ def push_card_from_arr(point, card):
                             break
                         # 有闪出闪
                         elif shan_index != -1:
-                            if target_player.showCardForArray(shan_index).category != 102:
+                            if target_player.card_array[shan_index].category != 102:
                                 shan_index = int(input("输入有误，请出一张闪，或放弃出闪(-1)\n"))
                                 continue
-                            c = target_player.popCardForArray(shan_index)
-                            discardStack.addCardForArray(c)
+                            c = target_player.card_array.pop(shan_index)
+                            discardStack.card_array.append(c)
                             print("目标玩家出了一张闪")
                             # 是否有闪
                             key = True
@@ -1205,7 +1217,7 @@ def push_card_from_arr(point, card):
 
         # 将这张桃园结义放入弃牌堆
         point.popCardForAll(card)
-        discardStack.addCardForArray(card)
+        discardStack.card_array.append(card)
 
         for target_player in target_players_all_and_me:
             if target_player.blood != target_player.commander.blood:
@@ -1217,12 +1229,12 @@ def push_card_from_arr(point, card):
 
         # 将这张五谷丰登放入弃牌堆
         point.popCardForAll(card)
-        discardStack.addCardForArray(card)
+        discardStack.card_array.append(card)
 
         # 创建一个临时存放五谷丰登的牌堆
         card_arr_for_wugufengdeng = []
         for i in range(len(zhu_gong)+len(zhong_chen)+len(fan_zei)+len(nei_jian)):
-            card_arr_for_wugufengdeng.append(cardStack.popCardFromTop())
+            card_arr_for_wugufengdeng.append(cardStack.card_array.pop())
 
         # 五谷丰登指针
         point_for_wugufengdeng = point
@@ -1243,7 +1255,7 @@ def push_card_from_arr(point, card):
         # 弹出选中的牌
         card_for_wugufengdeng = card_arr_for_wugufengdeng.pop(card_for_wugufengdeng_index)
         # 把得到的牌放到手牌
-        point_for_wugufengdeng.addCardForArray(card_for_wugufengdeng)
+        point_for_wugufengdeng.card_array.append(card_for_wugufengdeng)
         # 提示
         print(f"{point_for_wugufengdeng.user.nickname} 获得了一张 {card_for_wugufengdeng.color}{card_for_wugufengdeng.points} - {card_for_wugufengdeng.name}")
         # 指针继续指向下家
@@ -1258,7 +1270,7 @@ def push_card_from_arr(point, card):
             # 弹出选中的牌
             card_for_wugufengdeng = card_arr_for_wugufengdeng.pop(card_for_wugufengdeng_index)
             # 把得到的牌放到手牌
-            point_for_wugufengdeng.addCardForArray(card_for_wugufengdeng)
+            point_for_wugufengdeng.card_array.append(card_for_wugufengdeng)
             # 提示
             print(f"{point_for_wugufengdeng.user.nickname} 获得了一张 {card_for_wugufengdeng.color}{card_for_wugufengdeng.points} - {card_for_wugufengdeng.name}")
             # 指针继续指向下家
@@ -1267,20 +1279,22 @@ def push_card_from_arr(point, card):
     # -- 火攻 --
     if card.category == 211:
 
-        show_target_card_not_null()
-
         if len(target_card_not_null) == 0:
             print("没有可选择的目标，因为所有玩家都没有手牌，但是这张牌还是成功出出去了，因为在出这张牌之前，当前玩家还有手牌")
             return True
 
+        # 选中的一个玩家
+        show_target_card_not_null()
         target_location = int(input("请选择一个目标\n"))
 
-        # 选中的一个玩家
         target_player = ""
         for i in range(len(target_players_all)):
             if target_players_all[i].location == target_location:
                 target_player = target_players_all[i]
 
+        # 将这张火攻放入弃牌堆
+        point.popCardForAll(card)
+        discardStack.card_array.append(card)
 
         # 造成的伤害
         shanghai = 1
@@ -1293,20 +1307,23 @@ def push_card_from_arr(point, card):
 
         # 目标玩家选择一张手牌做展示
         print("------")
-        for i in range(target_player.lenCardForArray()):
-            print(f"{i} - {target_player.showCardForArray(i)}")
-        target_card_index = int(input(f"请 {target_player.user.nickname} 选择一张手牌做展示"))
+        for i in range(len(target_player.card_array)):
+            print(f"{i} - {target_player.card_array[i].color}{target_player.card_array[i].points} - {target_player.card_array[i].name}")
+        target_card_index = int(input(f"请 {target_player.user.nickname} 选择一张手牌做展示\n"))
 
         # 临时存放这张展示的牌
-        target_card = target_player.showCardForArray(target_card_index)
+        target_card = target_player.card_array[target_card_index]
         print(f"{target_player.user.nickname} 展示了一张 {target_card.color}{target_card.points} - {target_card.name}")
 
         # 当前玩家打出一张相同花色的手牌
         # 是否有相同花色手牌开关，默认没有相同花色手牌
         key = False
-        for i in range(point.lenCardForArray()):
+        for i in range(len(point.card_array)):
 
-            if point.showCardForArray(i).color == target_card.color:
+            if point.card_array[i].color == target_card.color:
+                # 再次展示当前玩家的手牌
+                show_player_card_arr(point)
+
                 color_index = int(input(f"请出一张 {target_card.color} 花色的手牌，或放弃出牌(-1)\n"))
                 # 结算开关，默认关闭
                 end = False
@@ -1321,11 +1338,11 @@ def push_card_from_arr(point, card):
                         break
                     # 有相同花色手牌出相同花色手牌
                     elif color_index != -1:
-                        if point.showCardForArray(color_index).color != target_card.color:
+                        if point.card_array[color_index].color != target_card.color:
                             color_index = int(input(f"输入有误，请出一张 {target_card.color} 花色的手牌，或放弃出牌(-1)\n"))
                             continue
-                        c = point.popCardForArray(color_index)
-                        discardStack.addCardForArray(c)
+                        c = point.card_array.pop(color_index)
+                        discardStack.card_array.append(c)
                         target_player.blood -= shanghai
                         # 死亡判断
                         result = death_judgment()
@@ -1350,14 +1367,12 @@ def push_card_from_arr(point, card):
         if key == False:
             print("当前玩家没有没有相同花色手牌")
 
-        return True
-
     # -- 铁索连环 --
     if card.category == 212:
 
         # 将这张铁索连环放入弃牌堆
         point.popCardForAll(card)
-        discardStack.addCardForArray(card)
+        discardStack.card_array.append(card)
 
         # 展示所有可选择目标
         show_target_players_all_and_me()
@@ -1428,7 +1443,7 @@ def push_card_from_arr(point, card):
 
         # 将这张乐不思蜀放入弃牌堆
         point.popCardForAll(card)
-        discardStack.addCardForArray(card)
+        discardStack.card_array.append(card)
 
     # -- 闪电 --
     if card.category == 302:
@@ -1440,7 +1455,7 @@ def push_card_from_arr(point, card):
 
         # 将这张闪电放入弃牌堆
         point.popCardForAll(card)
-        discardStack.addCardForArray(card)
+        discardStack.card_array.append(card)
 
     # -- 兵粮寸断 --
     if card.category == 303:
@@ -1461,159 +1476,51 @@ def push_card_from_arr(point, card):
 
         # 将这张兵粮寸断放入弃牌堆
         point.popCardForAll(card)
-        discardStack.addCardForArray(card)
+        discardStack.card_array.append(card)
 
     # ------------------------------
     #   武器牌出牌逻辑
     # ------------------------------
 
-    # -- 诸葛连弩 --
-    if card.category==401:
+    if card.category/100==4:
+        # 装备这张装备牌
         point.equipment["arms"] = card
-        # 将这张牌放入弃牌堆
+        # 将这张装备牌放入弃牌堆
         point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 青釭剑 --
-    if card.category==402:
-        point.equipment["arms"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 雌雄双股剑 --
-    if card.category==403:
-        point.equipment["arms"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 贯石斧 --
-    if card.category==404:
-        point.equipment["arms"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 青龙偃月刀 --
-    if card.category==405:
-        point.equipment["arms"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 丈八蛇矛 --
-    if card.category==406:
-        point.equipment["arms"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 方天画戟 --
-    if card.category==407:
-        point.equipment["arms"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 麒麟弓 --
-    if card.category==408:
-        point.equipment["arms"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 古锭刀 --
-    if card.category==409:
-        point.equipment["arms"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 朱雀羽扇 --
-    if card.category==410:
-        point.equipment["arms"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 寒冰剑 --
-    if card.category==411:
-        point.equipment["arms"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
+        discardStack.card_array.append(card)
 
     # ------------------------------
     #   防具牌出牌逻辑
     # ------------------------------
 
-    # -- 八卦阵 --
-    if card.category==501:
+    if card.category/100==5:
+        # 装备这张防具牌
         point.equipment["armor"] = card
-        # 将这张牌放入弃牌堆
+        # 将这张防具牌放入弃牌堆
         point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 白银狮子 --
-    if card.category==502:
-        point.equipment["armor"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 藤甲 --
-    if card.category==503:
-        point.equipment["armor"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 仁王盾 --
-    if card.category==504:
-        point.equipment["armor"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
+        discardStack.card_array.append(card)
 
     # ------------------------------
     #   +马牌出牌逻辑
     # ------------------------------
 
-    # -- 爪黄飞电 --
-    if card.category==601:
+    if card.category/100==6:
+        # 装备这张+马牌
         point.equipment["horse+"] = card
-        # 将这张牌放入弃牌堆
+        # 将这张+马牌放入弃牌堆
         point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 的卢 --
-    if card.category==602:
-        point.equipment["horse+"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 绝影 --
-    if card.category==603:
-        point.equipment["horse+"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 骅骝 --
-    if card.category==604:
-        point.equipment["horse+"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
+        discardStack.card_array.append(card)
 
     # ------------------------------
     #   -马牌出牌逻辑
     # ------------------------------
 
-    # -- 赤兔 --
-    if card.category==701:
+    if card.category/100==7:
+        # 装备这张-马牌
         point.equipment["horse-"] = card
-        # 将这张牌放入弃牌堆
+        # 将这张-马牌放入弃牌堆
         point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 紫骍 --
-    if card.category==702:
-        point.equipment["horse-"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
-    # -- 大宛 --
-    if card.category==703:
-        point.equipment["horse-"] = card
-        # 将这张牌放入弃牌堆
-        point.popCardForAll(card)
-        discardStack.addCardForArray(card)
+        discardStack.card_array.append(card)
 
 ########## 开始回合
 while True:
@@ -1635,19 +1542,24 @@ while True:
     if point.mark_skil_bag["lebusishu"]!="":
         print("开始判定乐不思蜀")
         # 从牌堆顶拿一张牌
-        card_for_panding = cardStack.popCardFromTop()
+        card_for_panding = cardStack.card_array.pop()
         if card_for_panding.color!="红桃♥":
-            is_lebusishu = True;
+            is_lebusishu = True
             print("乐不思蜀判定成功")
         else:
             print("乐不思蜀判定失败")
-        discardStack.addCardForArray(card_for_panding)
+        # 判定牌放入弃牌堆
+        discardStack.card_array.append(card_for_panding)
+        # 延时锦囊放入弃牌堆
+        discardStack.card_array.append(point.mark_skil_bag["lebusishu"])
+        # 判定结束，移除乐不思蜀
+        point.mark_skil_bag["lebusishu"] = ""
 
     if point.mark_skil_bag["shandian"] != "":
         print("开始判定闪电")
         # 从牌堆顶拿一张牌
-        card_for_panding = cardStack.popCardFromTop()
-        if card_for_panding.color!="黑桃♠" and card_for_panding.points_weight>=2 and card_for_panding.points_weight<=9:
+        card_for_panding = cardStack.card_array.pop()
+        if card_for_panding.color=="黑桃♠" and card_for_panding.points_weight>=2 and card_for_panding.points_weight<=9:
             print("闪电判定成功")
             point.blood-=3
             point("当前玩家失去3点体力")
@@ -1657,18 +1569,30 @@ while True:
                 the_end = True
         else:
             print("闪电判定失败")
-        discardStack.addCardForArray(card_for_panding)
+            # 闪电转移到下家
+            point.right_player.mark_skil_bag["shandian"] = point.mark_skil_bag["shandian"]
+        # 判定牌放入弃牌堆
+        discardStack.card_array.append(card_for_panding)
+        # 延时锦囊放入弃牌堆
+        discardStack.card_array.append(point.mark_skil_bag["shandian"])
+        # 判定结束，移除闪电
+        point.mark_skil_bag["shandian"] = ""
 
     if point.mark_skil_bag["bingliangcunduan"]!="":
         print("开始判定兵粮寸断")
         # 从牌堆顶拿一张牌
-        card_for_panding = cardStack.popCardFromTop()
+        card_for_panding = cardStack.card_array.pop()
         if card_for_panding.color!="梅花♣":
             is_bingliangcunduan = True
             print("兵粮寸断判定成功")
         else:
             print("兵粮寸断判定失败")
-        discardStack.addCardForArray(card_for_panding)
+        # 判定牌放入弃牌堆
+        discardStack.card_array.append(card_for_panding)
+        # 延时锦囊放入弃牌堆
+        discardStack.card_array.append(point.mark_skil_bag["bingliangcunduan"])
+        # 判定结束，移除兵粮寸断
+        point.mark_skil_bag["bingliangcunduan"] = ""
 
     # 当前玩家摸牌阶段
     if is_bingliangcunduan:
@@ -1676,7 +1600,7 @@ while True:
     else:
         print(f"{point.user.nickname} - 摸牌阶段")
         for i in range(2):
-            point.addCardForArray(cardStack.popCardFromTop())
+            point.card_array.append(cardStack.card_array.pop())
 
     # 当前玩家出牌阶段
     if is_lebusishu:
@@ -1696,26 +1620,26 @@ while True:
                 break
 
             # 打印测试
-            # print(f"这张手牌为 - {point.showCardForArray(card_index)}")
+            # print(f"这张手牌为 - {point.card_array[card_index]}")
 
             # 把要出的牌的对象传递给出牌逻辑函数
-            result = push_card_from_arr(point, point.showCardForArray(card_index))
+            result = push_card_from_arr(point, point.card_array[card_index])
             if result==False:
                 print("出牌失败")
 
 
     # 当前玩家弃牌阶段
     print(f"{point.user.nickname} - 弃牌阶段")
-    while point.lenCardForArray()>point.blood:
+    while len(point.card_array)>point.blood:
         # 展示当前玩家手牌
         show_player_card_arr(point)
         # 选择的牌
         card_index = input("请选择需要弃牌的编号(目前版本一次只能弃牌一张)，或自动牌(-1)\n")
         if card_index == "-1":
-            while point.lenCardForArray()>point.blood:
-                point.popCardForArray(0)
+            while len(point.card_array)>point.blood:
+                point.card_array.pop(0)
         else:
-            point.popCardForArray(int(card_index))
+            point.card_array.pop(int(card_index))
 
     # 当前玩家回合结束阶段
     print(f"{point.user.nickname} - 回合结束阶段")

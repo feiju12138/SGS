@@ -3,27 +3,21 @@
 """
 class User():
 
-    # 编号
-    id = ""
-
-    # 用户名（用于登录，不可重复）
-    username = ""
-
-    # 昵称（用于展示，可以重复）
-    nickname = ""
-
-    # 性别
-    sex = ""
-
-    # 等级
-    level = ""
-
-
     def __init__(self, id, username, nickname, sex, level):
+
+        # 编号
         self.id = id
+
+        # 用户名（用于登录，不可重复）
         self.username = username
+
+        # 昵称（用于展示，可以重复）
         self.nickname = nickname
+
+        # 性别
         self.sex = sex
+
+        # 等级
         self.level = level
 
     def __str__(self):
